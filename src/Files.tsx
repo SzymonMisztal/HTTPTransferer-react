@@ -1,11 +1,19 @@
 import React, { useState, useEffect } from "react";
 import Preview from "./Preview";
+import { makeStyles } from '@mui/styles';
+import {Button} from "@mui/material";
+import "./Styles/Body.css"
+import FileUpload from "./FileUpload";
+import "./Styles/Image.css"
+import "./Styles/Video.css"
+
 
 interface File {
     id: number;
     name: string;
     path: string;
     type: string;
+    checked: boolean;
 }
 
 function Files({currentDir, setCurrentDir}) {
@@ -24,6 +32,7 @@ function Files({currentDir, setCurrentDir}) {
             fetch("http://localhost:8080/files" + file.path)
                 .then((response) => response.json())
                 .then((data) => setFiles(data))
+            setCurrentDir(file.path)
         }
         else {
             setCurrentFile(file)
@@ -33,8 +42,12 @@ function Files({currentDir, setCurrentDir}) {
     const goBack = () => {
 
         let pathSlices = currentDir.split("/");
-        if (pathSlices.length < 1) { return }
-        let newPath = pathSlices.slice(0, -1).join("/");
+        let newPath;
+        if (pathSlices.length < 1) {
+            newPath = "/";
+        } else {
+            newPath = pathSlices.slice(0, -1).join("/");
+        }
 
         fetch("http://localhost:8080/files" + newPath)
             .then((response) => response.json())
@@ -45,12 +58,19 @@ function Files({currentDir, setCurrentDir}) {
     return (
         <>
             <div style={{ width: "50%", border: "2px" }}>
-                <h1>Files</h1>
+                <h3>Upload</h3>
+                    <FileUpload currentDir={currentDir}/>
+                <h3>Files</h3>
                 <button onClick={() => goBack()}>Back</button>
                 <ul>
                     {files.map((file) => (
                         <li key={file.id}>
-                            <button onClick={() => goInto(file)}>{file.name}</button>
+                            <a
+                                href="#"
+                                onClick={() => goInto(file)}
+                            >
+                                {file.name}
+                            </a>
                         </li>
                     ))}
                 </ul>

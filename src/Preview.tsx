@@ -1,4 +1,9 @@
 import React, { useState, useEffect } from "react";
+import {CloudUpload} from "@mui/icons-material";
+import {Button} from "@mui/material";
+import DownloadIcon from '@mui/icons-material/Download';
+import { URL } from 'url';
+import VideoWatcher from "./VideoWatcher";
 
 interface File {
     id: number;
@@ -18,6 +23,27 @@ interface Props {
 }
 
 function Preview(props: Props) {
+
+    const download = () => {
+        fetch("http://localhost:8080/download" + props.file.path)
+            .then(response => response.blob())
+            .then(blob => {
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = extractFileNameFromUrl("http://localhost:8080/download" + props.file.path);
+                a.click();
+                window.URL.revokeObjectURL(url);
+            })
+            .catch(error => {
+                console.error('Error downloading file:', error);
+            });
+    };
+
+    const extractFileNameFromUrl = (url: string): string => {
+        const parts = url.split('/');
+        return parts[parts.length - 1];
+    };
 
     const [preview, setPreview] = useState<Preview>()
 
@@ -56,6 +82,16 @@ function Preview(props: Props) {
                     img: props.file.path
                 }
                 setPreview(newPreview)
+            } else if (
+                props.file.type === "MOV" ||
+                props.file.type === "MP4"
+            ) {
+                const newPreview: Preview = {
+                    type: props.file.type,
+                    text: props.file.path,
+                    img: null
+                }
+                setPreview(newPreview)
             }
         }
 
@@ -65,7 +101,7 @@ function Preview(props: Props) {
         if (preview.type === "FILE") {
             return (
                 <>
-                    <p>{ preview.text }</p>
+                    <pre>{ preview.text }</pre>
                 </>
             );
         } else if (
@@ -75,9 +111,18 @@ function Preview(props: Props) {
         ) {
             return (
                 <>
-                    <img src={`http://localhost:8080/preview/image${preview.img}`} />
+                    <Button startIcon={<DownloadIcon />} onClick={ download }>
+                        Download
+                    </Button>
+                    <br/>
+                    <img className="image-container" src={`http://localhost:8080/preview/image${preview.img}`} />
                 </>
             );
+        } else if (
+            preview.type === "MOV" ||
+            preview.type === "MP4"
+        ) {
+            return (<VideoWatcher videoUrl={"http://localhost:8080/video" + preview.text}/>)
         }
     }
     return (

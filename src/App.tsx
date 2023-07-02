@@ -18,7 +18,7 @@ function App() {
             <div>
                 <TopBar currentDir={currentDir} setCurrentDir={setCurrentDir} />
             </div>
-            <div style={{ display: "flex" }}>
+            <div style={{ display: "flex", flexGrow: 1 }}>
                 <Files currentDir={currentDir} setCurrentDir={setCurrentDir} />
             </div>
         </div>

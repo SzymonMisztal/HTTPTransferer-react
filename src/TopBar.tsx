@@ -2,11 +2,18 @@ import React, {useEffect} from 'react';
 import {AppBar, Toolbar, IconButton, InputBase, Button, Menu, MenuItem, styled} from '@mui/material';
 import { CloudUpload, CloudDownload, AccountCircle, Settings } from '@mui/icons-material';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import "./SettingsOverlay"
+import SettingsOverlay from "./SettingsOverlay";
 
 
 function TopBar({currentDir, setCurrentDir}) {
     const [anchorEl, setAnchorEl] = React.useState(null);
     const [inputValue, setInputValue] = React.useState('');
+    const [showSettings, setShowSettings] = React.useState(false);
+
+    const handleToggleSettings = () => {
+        setShowSettings((prevState) => !prevState);
+    };
 
     useEffect(() => {
         setInputValue(currentDir);
@@ -56,7 +63,7 @@ function TopBar({currentDir, setCurrentDir}) {
                     </Button>
 
                     {/* Middle */}
-                    <InputBase value={inputValue} fullWidth onChange={(e) => setInputValue(e.target.value)} />
+                    <InputBase value={currentDir} fullWidth onChange={(e) => setInputValue(e.target.value)} />
 
                     {/* Right */}
                     <IconButton color="inherit" onClick={handleMenuOpen}>
@@ -66,10 +73,11 @@ function TopBar({currentDir, setCurrentDir}) {
                         <MenuItem onClick={handleLogout}>Log Off</MenuItem>
                         <MenuItem onClick={handleAddAccount}>Add Account</MenuItem>
                     </Menu>
-                    <IconButton color="inherit" onClick={handleSettings}>
+                    <IconButton color="inherit" onClick={handleToggleSettings}>
                         <Settings />
                     </IconButton>
                 </Toolbar>
+                {showSettings && <SettingsOverlay />}
             </AppBar>
         </ThemeProvider>
     );
